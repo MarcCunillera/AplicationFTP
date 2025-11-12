@@ -4,159 +4,77 @@
  */
 package aplicationftp.service;
 
-import java.io.File;
-import org.apache.commons.net.ftp.FTPSClient;
+import aplicationftp.connection.FTPConnection;
+import aplicationftp.model.FTPFileItem;
+import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTP;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class FTPService {
 
-    private final FTPSClient client;
+    private final FTPConnection connection;
+    private FTPClient ftpClient;
+    private final String host, user, pass;
+    private final int port = 21;
 
-    public FTPService(FTPSClient client) {
-        this.client = client;
+    public FTPService(String host, String user, String pass) {
+        this.host = host;
+        this.user = user;
+        this.pass = pass;
+        this.connection = new FTPConnection();
     }
 
-    // LLISTAR DIRECTORIS
-    public void listDirectory(String path) throws IOException {
-        FTPFile[] files = client.listFiles(path);
-        for (FTPFile file : files) {
-            System.out.println((file.isDirectory() ? "[DIR] " : "[FILE] ") + file.getName());
-        }
+    public boolean connect() {
+        boolean ok = connection.connect(host, port, user, pass);
+        if(ok) ftpClient = connection.getFTPClient();
+        return ok;
     }
 
-    // CREAR DIRECTORI (SEGUR)
-    public boolean createDirectory(String path) throws IOException {
-        return client.makeDirectory(path);
-    }
-
-    // PUJAR FITXER amb detecció automàtica del nom
-    public boolean uploadFile(String localFilePath, String remoteDirPath) throws IOException {
-        client.enterLocalPassiveMode();
-        client.setFileType(FTP.BINARY_FILE_TYPE);
-
-        File localFile = new File(localFilePath);
-        String remoteFilePath = remoteDirPath.endsWith("/")
-                ? remoteDirPath + localFile.getName()
-                : remoteDirPath + "/" + localFile.getName();
-
-        try (InputStream input = new FileInputStream(localFile)) {
-            return client.storeFile(remoteFilePath, input);
-        }
-    }
-
-    // PUJAR CARPETA MANTENINT ESTRUCTURA
-    public void uploadDirectory(String localDir, String remoteParentDir) throws IOException {
-        File localFolder = new File(localDir);
-        String remoteFolder = remoteParentDir + "/" + localFolder.getName();
-
-        createDirectory(remoteFolder);
-
-        for (File file : localFolder.listFiles()) {
-
-            if (file.isDirectory()) {
-                uploadDirectory(file.getAbsolutePath(), remoteFolder);
-            } else {
-                uploadFile(file.getAbsolutePath(), remoteFolder);
-                System.out.println("Fitxer pujat: " + remoteFolder + "/" + file.getName());
-            }
+    public List<FTPFileItem> listFiles() {
+        try {
+            FTPFile[] files = ftpClient.listFiles();
+            return Arrays.stream(files)
+                    .map(f -> new FTPFileItem(
+                            f.getName(),
+                            String.valueOf(f.getSize()),
+                            f.isDirectory() ? "Dir" : "File",
+                            String.valueOf(f.getTimestamp().getTime())
+                    ))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return List.of();
         }
     }
 
-    // DESCARREGAR FITXER (accepta directori o camí complet de fitxer)
-    public boolean downloadFile(String remoteFilePath, String localTarget) throws IOException {
-        // Assegura mode passiu i tipus
-        client.enterLocalPassiveMode();
-        client.setFileType(FTP.BINARY_FILE_TYPE);
-
-        File target = new File(localTarget);
-        String localFilePath;
-
-        if (target.exists() && target.isDirectory()) {
-            String fileName = remoteFilePath.substring(remoteFilePath.lastIndexOf('/') + 1);
-            localFilePath = new File(target, fileName).getAbsolutePath();
-        } else if (localTarget.endsWith(File.separator) || localTarget.endsWith("/")) {
-            File dir = new File(localTarget);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            String fileName = remoteFilePath.substring(remoteFilePath.lastIndexOf('/') + 1);
-            localFilePath = new File(dir, fileName).getAbsolutePath();
-        } else {
-            File parent = target.getParentFile();
-            if (parent != null && !parent.exists()) {
-                parent.mkdirs();
-            }
-            localFilePath = target.getAbsolutePath();
-        }
-
-        try (FileOutputStream fos = new FileOutputStream(localFilePath)) {
-            return client.retrieveFile(remoteFilePath, fos);
+    public void uploadFile(String localPath, String remoteName) throws IOException {
+        try (FileInputStream fis = new FileInputStream(localPath)) {
+            ftpClient.storeFile(remoteName, fis);
         }
     }
 
-    // DESCARREGAR CARPETA MANTENINT ESTRUCTURA (millorat)
-    public void downloadDirectory(String remoteDir, String localDir) throws IOException {
-
-        client.enterLocalPassiveMode();
-        client.setFileType(FTP.BINARY_FILE_TYPE);
-
-        String folderName = remoteDir.substring(remoteDir.lastIndexOf('/') + 1);
-        File localFolder = new File(localDir, folderName);
-        if (!localFolder.exists()) {
-            localFolder.mkdirs();
-        }
-
-        FTPFile[] files = client.listFiles(remoteDir);
-        if (files == null) {
-            return;
-        }
-
-        for (FTPFile file : files) {
-
-            if (file.getName().equals(".") || file.getName().equals("..")) {
-                continue;
-            }
-
-            String remoteFilePath = remoteDir + "/" + file.getName();
-            String localFilePath = localFolder.getAbsolutePath() + File.separator + file.getName();
-
-            if (file.isDirectory()) {
-                downloadDirectory(remoteFilePath, localFolder.getAbsolutePath());
-            } else {
-                File parent = new File(localFilePath).getParentFile();
-                if (!parent.exists()) {
-                    parent.mkdirs();
-                }
-                downloadFile(remoteFilePath, localFilePath);
-                System.out.println("Fitxer descarregat: " + localFilePath);
-            }
+    public void downloadFile(String remoteName, String localPath) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(localPath)) {
+            ftpClient.retrieveFile(remoteName, fos);
         }
     }
+    
+    public void createDirectory(String folderName) throws IOException {
+    ftpClient.makeDirectory(folderName);
+}
 
-    // ESBORRAR FITXER
-    public boolean deleteFile(String remoteFilePath) throws IOException {
-        return client.deleteFile(remoteFilePath);
+
+    public void deleteFile(String remoteName) throws IOException {
+        ftpClient.deleteFile(remoteName);
     }
 
-    // ESBORRAR CARPETA RECUSIVA CORRECTE
-    public void deleteDirectoryRecursive(String remoteDir) throws IOException {
-        FTPFile[] files = client.listFiles(remoteDir);
-
-        for (FTPFile file : files) {
-            String fullPath = remoteDir + "/" + file.getName();
-
-            if (file.isDirectory()) {
-                deleteDirectoryRecursive(fullPath);
-            } else {
-                client.deleteFile(fullPath);
-            }
-        }
-        client.removeDirectory(remoteDir);
+    public void disconnect() throws Exception {
+        connection.disconnect();
     }
 }
