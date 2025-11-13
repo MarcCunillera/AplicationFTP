@@ -21,20 +21,51 @@ public class FTPFileItem {
         this.date.set(date);
     }
 
-    public String getName() { return name.get(); }
-    public void setName(String value) { name.set(value); }
-    public StringProperty nameProperty() { return name; }
+    public String getName() {
+        return name.get();
+    }
 
-    public String getSize() { return size.get(); }
-    public void setSize(String value) { size.set(value); }
-    public StringProperty sizeProperty() { return size; }
+    public void setName(String value) {
+        name.set(value);
+    }
 
-    public String getType() { return type.get(); }
-    public void setType(String value) { type.set(value); }
-    public StringProperty typeProperty() { return type; }
+    public StringProperty nameProperty() {
+        return name;
+    }
 
-    public String getDate() { return date.get(); }
-    public void setDate(String value) { date.set(value); }
-    public StringProperty dateProperty() { return date; }
+    public String getSize() {
+        return size.get();
+    }
+
+    public void setSize(String value) {
+        size.set(value);
+    }
+
+    public StringProperty sizeProperty() {
+        return size;
+    }
+
+    public String getType() {
+        return type.get();
+    }
+
+    public void setType(String value) {
+        type.set(value);
+    }
+
+    public StringProperty typeProperty() {
+        return type;
+    }
+
+    public String getDate() {
+        return date.get();
+    }
+
+    public void setDate(String value) {
+        date.set(value);
+    }
+
+    public StringProperty dateProperty() {
+        return date;
+    }
 }
-

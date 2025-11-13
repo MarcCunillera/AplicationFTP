@@ -47,83 +47,86 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
-  <children>
-    <MenuBar VBox.vgrow="NEVER">
-      <menus>
-        <Menu mnemonicParsing="false" text="File">
-          <items>
-            <MenuItem mnemonicParsing="false" text="New" />
-            <MenuItem mnemonicParsing="false" text="Open…" />
-            <Menu mnemonicParsing="false" text="Open Recent" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Close" />
-            <MenuItem mnemonicParsing="false" text="Save" />
-            <MenuItem mnemonicParsing="false" text="Save As…" />
-            <MenuItem mnemonicParsing="false" text="Revert" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Preferences…" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Quit" />
-          </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Edit">
-          <items>
-            <MenuItem mnemonicParsing="false" text="Undo" />
-            <MenuItem mnemonicParsing="false" text="Redo" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Cut" />
-            <MenuItem mnemonicParsing="false" text="Copy" />
-            <MenuItem mnemonicParsing="false" text="Paste" />
-            <MenuItem mnemonicParsing="false" text="Delete" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Select All" />
-            <MenuItem mnemonicParsing="false" text="Unselect All" />
-          </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Help">
-          <items>
-            <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
-          </items>
-        </Menu>
-      </menus>
-    </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="380.0" prefWidth="640.0" VBox.vgrow="ALWAYS">
-      <children>
-            <Label layoutX="154.0" layoutY="14.0" prefHeight="16.0" prefWidth="59.0" text="Usuario" />
-            <TextField fx:id="userField" layoutX="210.0" layoutY="10.0" prefHeight="24.0" prefWidth="95.0" />
-            <Label layoutX="314.0" layoutY="14.0" text="Contraseña" />
-            <TextField fx:id="passField" layoutX="396.0" layoutY="10.0" prefHeight="24.0" prefWidth="110.0" />
-            <Button fx:id="connectBtn" layoutX="524.0" layoutY="9.0" mnemonicParsing="false" onAction="#onConnectAction" prefHeight="24.0" prefWidth="95.0" text="Conectar" />
-            <Label layoutX="8.0" layoutY="50.0" prefHeight="21.0" prefWidth="242.0" text="Estructura del servidor">
-               <font>
-                  <Font size="12.0" />
-               </font>
-            </Label>
-            <TreeView fx:id="remoteTree" layoutX="8.0" layoutY="72.0" prefHeight="260.0" prefWidth="212.0" />
-            <TableView fx:id="filesTable" layoutX="243.0" layoutY="73.0" prefHeight="200.0" prefWidth="375.0">
-              <columns>
-                <TableColumn fx:id="colName" prefWidth="75.0" text="Nombre" />
-                <TableColumn fx:id="colSize" prefWidth="75.0" text="Tamaño" />
-                  <TableColumn fx:id="colType" prefWidth="75.0" text="Tipo" />
-                  <TableColumn fx:id="colDate" prefWidth="75.0" text="Fecha" />
-              </columns>
-            </TableView>
-            <Label layoutX="243.0" layoutY="53.0" prefHeight="16.0" prefWidth="73.0" text="Contenido">
-               <font>
-                  <Font size="12.0" />
-               </font>
-            </Label>
-            <Button layoutX="233.0" layoutY="281.0" mnemonicParsing="false" onAction="#onUploadAction" text="Subir Archivos" />
-            <Button layoutX="351.0" layoutY="281.0" mnemonicParsing="false" onAction="#onDownloadAction" text="Descargar" />
-            <Button layoutX="440.0" layoutY="281.0" mnemonicParsing="false" onAction="#onCreateDirAction" text="Crear Carpeta" />
-            <Button layoutX="556.0" layoutY="281.0" mnemonicParsing="false" onAction="#onDeleteAction" text="Eliminar" />
-            <ProgressBar fx:id="progressBar" layoutX="231.0" layoutY="311.0" prefHeight="21.0" prefWidth="399.0" progress="0.0" visible="false" />
-            <Label layoutX="16.0" layoutY="343.0" text="Estado:" />
-            <Label fx:id="statusLabel" layoutX="68.0" layoutY="343.0" prefHeight="16.0" prefWidth="120.0" />
-            <Label layoutX="13.0" layoutY="14.0" prefHeight="16.0" prefWidth="59.0" text="Host" />
-            <TextField fx:id="hostField" layoutX="50.0" layoutY="10.0" prefHeight="24.0" prefWidth="95.0" />
-      </children>
-    </AnchorPane>
-  </children>
+<VBox fx:controller="aplicationftp.controller.FtpController"
+      prefHeight="400.0" prefWidth="640.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <MenuBar VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="New" />
+                        <MenuItem mnemonicParsing="false" text="Open…" />
+                        <Menu mnemonicParsing="false" text="Open Recent" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Close" />
+                        <MenuItem mnemonicParsing="false" text="Save" />
+                        <MenuItem mnemonicParsing="false" text="Save As…" />
+                        <MenuItem mnemonicParsing="false" text="Revert" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Preferences…" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Quit" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Undo" />
+                        <MenuItem mnemonicParsing="false" text="Redo" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Cut" />
+                        <MenuItem mnemonicParsing="false" text="Copy" />
+                        <MenuItem mnemonicParsing="false" text="Paste" />
+                        <MenuItem mnemonicParsing="false" text="Delete" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Select All" />
+                        <MenuItem mnemonicParsing="false" text="Unselect All" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="380.0" prefWidth="640.0" VBox.vgrow="ALWAYS">
+            <children>
+                <Label layoutX="154.0" layoutY="14.0" prefHeight="16.0" prefWidth="59.0" text="Usuario" />
+                <TextField fx:id="userField" layoutX="210.0" layoutY="10.0" prefHeight="24.0" prefWidth="95.0" />
+                <Label layoutX="314.0" layoutY="14.0" text="Contraseña" />
+                <TextField fx:id="passField" layoutX="396.0" layoutY="10.0" prefHeight="24.0" prefWidth="110.0" />
+                <Button fx:id="connectBtn" layoutX="524.0" layoutY="9.0" mnemonicParsing="false" onAction="#onConnectAction" prefHeight="24.0" prefWidth="95.0" text="Conectar" />
+                <Label layoutX="8.0" layoutY="49.0" prefHeight="21.0" prefWidth="242.0" text="Estructura del servidor">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Label>
+                <TreeView fx:id="remoteTree" layoutX="10.0" layoutY="70.0" prefHeight="230.0" prefWidth="210.0" />
+                <TableView fx:id="filesTable" layoutX="230.0" layoutY="70.0" prefHeight="230.0" prefWidth="400.0">
+                    <columns>
+                        <TableColumn fx:id="colName" prefWidth="120.0" text="Nombre" />
+                        <TableColumn fx:id="colSize" prefWidth="80.0" text="Tamaño" />
+                        <TableColumn fx:id="colType" prefWidth="80.0" text="Tipo" />
+                        <TableColumn fx:id="colDate" prefWidth="120.0" text="Fecha" />
+                    </columns>
+                </TableView>
+                <Label layoutX="230.0" layoutY="51.0" prefHeight="16.0" prefWidth="73.0" text="Contenido">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Label>
+                <Button layoutX="230.0" layoutY="310.0" mnemonicParsing="false" onAction="#onUploadAction" prefWidth="90.0" text="Subir" />
+                <Button layoutX="330.0" layoutY="310.0" mnemonicParsing="false" onAction="#onDownloadAction" prefWidth="90.0" text="Descargar" />
+                <Button layoutX="430.0" layoutY="310.0" mnemonicParsing="false" onAction="#onCreateDirAction" prefWidth="90.0" text="Carpeta" />
+                <Button layoutX="530.0" layoutY="310.0" mnemonicParsing="false" onAction="#onDeleteAction" prefWidth="90.0" text="Eliminar" />
+                <ProgressBar fx:id="progressBar" layoutX="34.0" layoutY="314.0" prefHeight="16.0" prefWidth="163.0" progress="0.0" />
+                <Label layoutX="10.0" layoutY="345.0" text="Estado:" />
+                <Label fx:id="statusLabel" layoutX="70.0" layoutY="345.0" prefWidth="550.0" style="-fx-text-fill: #333333;" text="Sin conexión" />
+                <Label layoutX="13.0" layoutY="14.0" prefHeight="16.0" prefWidth="59.0" text="Host" />
+                <TextField fx:id="hostField" layoutX="50.0" layoutY="10.0" prefHeight="24.0" prefWidth="95.0" />
+            </children>
+        </AnchorPane>
+    </children>
 </VBox>

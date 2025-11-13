@@ -32,20 +32,23 @@ public class FTPService {
 
     public boolean connect() {
         boolean ok = connection.connect(host, port, user, pass);
-        if(ok) ftpClient = connection.getFTPClient();
+        if (ok) {
+            ftpClient = connection.getFTPClient();
+        }
         return ok;
     }
 
-    public List<FTPFileItem> listFiles() {
+    public List<FTPFileItem> listFiles(String path) {
         try {
-            FTPFile[] files = ftpClient.listFiles();
+            FTPFile[] files = ftpClient.listFiles(path);
             return Arrays.stream(files)
+                    .filter(f -> f.isFile()) // <-- només fitxers
                     .map(f -> new FTPFileItem(
-                            f.getName(),
-                            String.valueOf(f.getSize()),
-                            f.isDirectory() ? "Dir" : "File",
-                            String.valueOf(f.getTimestamp().getTime())
-                    ))
+                    f.getName(),
+                    String.valueOf(f.getSize()),
+                    "File", // ja sabem que és un fitxer
+                    f.getTimestamp() != null ? f.getTimestamp().getTime().toString() : ""
+            ))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,17 +67,43 @@ public class FTPService {
             ftpClient.retrieveFile(remoteName, fos);
         }
     }
-    
-    public void createDirectory(String folderName) throws IOException {
-    ftpClient.makeDirectory(folderName);
-}
 
+    public void createDirectory(String folderName) throws IOException {
+        ftpClient.makeDirectory(folderName);
+    }
 
     public void deleteFile(String remoteName) throws IOException {
         ftpClient.deleteFile(remoteName);
     }
 
+    public boolean deleteDirectory(String remotePath) {
+        try {
+            // Intentar eliminar todos los archivos y subdirectorios primero
+            FTPFile[] files = ftpClient.listFiles(remotePath);
+            if (files != null) {
+                for (FTPFile file : files) {
+                    String childPath = remotePath + "/" + file.getName();
+                    if (file.isDirectory()) {
+                        deleteDirectory(childPath); // recursivo
+                    } else {
+                        ftpClient.deleteFile(childPath);
+                    }
+                }
+            }
+            // Finalmente eliminar la carpeta vacía
+            return ftpClient.removeDirectory(remotePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void disconnect() throws Exception {
         connection.disconnect();
     }
+
+    public FTPClient getFtpClient() {
+        return ftpClient;
+    }
+
 }
