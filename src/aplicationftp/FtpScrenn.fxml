@@ -37,7 +37,6 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -47,10 +46,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:controller="aplicationftp.controller.FtpController"
-      prefHeight="400.0" prefWidth="640.0"
-      xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aplicationftp.controller.FtpController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
@@ -103,8 +99,8 @@
                         <Font size="12.0" />
                     </font>
                 </Label>
-                <TreeView fx:id="remoteTree" layoutX="10.0" layoutY="70.0" prefHeight="230.0" prefWidth="210.0" />
-                <TableView fx:id="filesTable" layoutX="230.0" layoutY="70.0" prefHeight="230.0" prefWidth="400.0">
+                <TreeView fx:id="remoteTree" layoutX="10.0" layoutY="70.0" onContextMenuRequested="#onRemoteTreeClicked" prefHeight="230.0" prefWidth="210.0" AnchorPane.leftAnchor="10.0" />
+                <TableView fx:id="filesTable" layoutX="230.0" layoutY="70.0" onContextMenuRequested="#onFilesTableClicked" prefHeight="230.0" prefWidth="400.0" AnchorPane.rightAnchor="10.0">
                     <columns>
                         <TableColumn fx:id="colName" prefWidth="120.0" text="Nombre" />
                         <TableColumn fx:id="colSize" prefWidth="80.0" text="Tamaño" />
@@ -121,7 +117,6 @@
                 <Button layoutX="330.0" layoutY="310.0" mnemonicParsing="false" onAction="#onDownloadAction" prefWidth="90.0" text="Descargar" />
                 <Button layoutX="430.0" layoutY="310.0" mnemonicParsing="false" onAction="#onCreateDirAction" prefWidth="90.0" text="Carpeta" />
                 <Button layoutX="530.0" layoutY="310.0" mnemonicParsing="false" onAction="#onDeleteAction" prefWidth="90.0" text="Eliminar" />
-                <ProgressBar fx:id="progressBar" layoutX="34.0" layoutY="314.0" prefHeight="16.0" prefWidth="163.0" progress="0.0" />
                 <Label layoutX="10.0" layoutY="345.0" text="Estado:" />
                 <Label fx:id="statusLabel" layoutX="70.0" layoutY="345.0" prefWidth="550.0" style="-fx-text-fill: #333333;" text="Sin conexión" />
                 <Label layoutX="13.0" layoutY="14.0" prefHeight="16.0" prefWidth="59.0" text="Host" />

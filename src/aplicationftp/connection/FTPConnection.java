@@ -11,6 +11,9 @@ public class FTPConnection {
         this.client = new FTPSClient("TLS", false);
     }
 
+    /**
+     * Conecta al servidor FTPS
+     */
     public boolean connect(String host, int port, String user, String pass) {
         try {
             client.connect(host, port);
@@ -19,8 +22,10 @@ public class FTPConnection {
             client.execPBSZ(0);
             client.execPROT("P");
             client.enterLocalPassiveMode();
+            client.setUseEPSVwithIPv4(true);
             client.setFileType(FTP.BINARY_FILE_TYPE);
-            System.out.println("Connexió FTPS establerta amb èxit");
+
+            System.out.println("Conexión FTPS establecida con éxito");
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -28,15 +33,21 @@ public class FTPConnection {
         }
     }
 
+    /**
+     * Devuelve el cliente FTPS para operaciones
+     */
     public FTPSClient getFTPClient() {
         return client;
     }
 
+    /**
+     * Desconecta del servidor
+     */
     public void disconnect() throws Exception {
         if (client.isConnected()) {
             client.logout();
             client.disconnect();
-            System.out.println("Connexió FTPS tancada");
+            System.out.println("Conexión FTPS cerrada");
         }
     }
 }

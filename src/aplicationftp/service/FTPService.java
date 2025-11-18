@@ -6,6 +6,7 @@ package aplicationftp.service;
 
 import aplicationftp.connection.FTPConnection;
 import aplicationftp.model.FTPFileItem;
+import java.io.File;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
@@ -15,11 +16,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPSClient;
 
 public class FTPService {
 
     private final FTPConnection connection;
-    private FTPClient ftpClient;
+    private FTPSClient ftpClient;
     private final String host, user, pass;
     private final int port = 21;
 
@@ -30,6 +33,9 @@ public class FTPService {
         this.connection = new FTPConnection();
     }
 
+    /**
+     * Conecta al servidor usando FTPConnection
+     */
     public boolean connect() {
         boolean ok = connection.connect(host, port, user, pass);
         if (ok) {
@@ -38,20 +44,53 @@ public class FTPService {
         return ok;
     }
 
-    public List<FTPFileItem> listFiles(String path) {
+    /**
+     * Asegura que la conexión esté viva antes de cualquier operación
+     */
+    public boolean ensureConnected() {
         try {
+            if (ftpClient == null || !ftpClient.isConnected() || !ftpClient.sendNoOp()) {
+                System.out.println("Reconectando FTPS…");
+                if (!connection.connect(host, port, user, pass)) {
+                    System.err.println("No se pudo reconectar al servidor FTP");
+                    return false;
+                }
+                ftpClient.enterLocalPassiveMode();    // PASV
+                ftpClient.setUseEPSVwithIPv4(true);   // EPSV sobre IPv4
+                ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public synchronized List<FTPFileItem> listFiles(String path) {
+        try {
+            if (!ensureConnected()) {
+                return List.of();
+            }
+
             FTPFile[] files = ftpClient.listFiles(path);
+            if (files == null) {
+                return List.of();
+            }
+
             return Arrays.stream(files)
-                    .filter(f -> f.isFile()) // <-- només fitxers
+                    .filter(FTPFile::isFile)
                     .map(f -> new FTPFileItem(
                     f.getName(),
                     String.valueOf(f.getSize()),
-                    "File", // ja sabem que és un fitxer
+                    "File",
                     f.getTimestamp() != null ? f.getTimestamp().getTime().toString() : ""
             ))
                     .collect(Collectors.toList());
+
         } catch (IOException e) {
             e.printStackTrace();
+            System.err.println("No es poden llistar els fitxers de: " + path + " -> " + e.getMessage());
             return List.of();
         }
     }
@@ -76,25 +115,27 @@ public class FTPService {
         ftpClient.deleteFile(remoteName);
     }
 
-    public boolean deleteDirectory(String remotePath) {
-        try {
-            // Intentar eliminar todos los archivos y subdirectorios primero
-            FTPFile[] files = ftpClient.listFiles(remotePath);
-            if (files != null) {
-                for (FTPFile file : files) {
-                    String childPath = remotePath + "/" + file.getName();
-                    if (file.isDirectory()) {
-                        deleteDirectory(childPath); // recursivo
-                    } else {
-                        ftpClient.deleteFile(childPath);
-                    }
+    public boolean deleteDirectory(String dirPath) throws IOException {
+        return ftpClient.removeDirectory(dirPath);
+    }
+
+    public void downloadDirectoryRecursively(String remotePath, String localPath) throws IOException {
+        FTPFile[] files = ftpClient.listFiles(remotePath);
+        if (files != null) {
+            File localDir = new File(localPath);
+            if (!localDir.exists()) {
+                localDir.mkdirs();
+            }
+
+            for (FTPFile file : files) {
+                String remoteFilePath = remotePath + "/" + file.getName();
+                String localFilePath = localPath + "/" + file.getName();
+                if (file.isDirectory() && !file.getName().equals(".") && !file.getName().equals("..")) {
+                    downloadDirectoryRecursively(remoteFilePath, localFilePath);
+                } else if (file.isFile()) {
+                    downloadFile(remoteFilePath, localFilePath);
                 }
             }
-            // Finalmente eliminar la carpeta vacía
-            return ftpClient.removeDirectory(remotePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
         }
     }
 
